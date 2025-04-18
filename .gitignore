@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+logs/*
+queue/*
+media/input/*
+media/output/*
+.DS_Store
+*.log

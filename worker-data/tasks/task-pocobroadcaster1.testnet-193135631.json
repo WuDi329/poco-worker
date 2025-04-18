@@ -1,0 +1,22 @@
+{
+  "task_id": "task-pocobroadcaster1.testnet-193135631",
+  "broadcaster_id": "pocobroadcaster1.testnet",
+  "source_ipfs": "QmXYH9TGuBuoHjfzoBjTFkr29Akyx8ADXXMDMm98tPBMSN",
+  "requirements": {
+    "target_codec": "h264",
+    "target_resolution": "original",
+    "target_bitrate": "500k",
+    "target_framerate": "original",
+    "additional_params": ""
+  },
+  "status": "Assigned",
+  "assigned_worker": "pocoworker1.testnet",
+  "assignment_time": 1744946020511086000,
+  "result_ipfs": "QmQbhBTDap5VL63gTVJRZeWkXJzzGbHzzJQFBomLVtMSQz",
+  "completion_time": 1744948998540,
+  "assigned_verifiers": [],
+  "qos_proof_id": null,
+  "publish_time": 1744943670098465000,
+  "hw_acceleration_preferred": false,
+  "local_status": "Completed"
+}

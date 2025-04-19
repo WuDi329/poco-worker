@@ -9,7 +9,7 @@ const config: WorkerConfig = {
     helperUrl: "https://helper.testnet.near.org",
     explorerUrl: "https://explorer.testnet.near.org",
   },
-  contractId: "pococontract1.testnet", // 例如 media-transcoding.testnet
+  contractId: "pococontract3.testnet", // 例如 media-transcoding.testnet
   workerAccountId: "pocoworker1.testnet", // 例如 worker1.testnet
   credentialsPath: "~/.near-credentials", // NEAR凭证路径
   ipfsConfig: {

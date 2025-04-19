@@ -158,43 +158,53 @@ export class Executor {
         task.requirements
       );
 
+      // 提取关键帧时间戳
+      const keyframeTimestamps =
+        await this.transcoder.extractKeyframeTimestamps(outputFilePath);
+      console.log("关键帧时间戳:", keyframeTimestamps);
+
       // 上传结果到IPFS
       const resultCid = await this.ipfsService.uploadFile(outputFilePath);
 
       // 不直接调用区块链，而是通过回调函数通知Listener
       if (task.task_id.startsWith("test-")) {
         console.log(`测试任务 ${task.task_id}，跳过合约更新`);
+        // this.updateTaskStatus(task, "Completed", resultCid, keyframeTimestamps);
       } else if (this.onTaskCompleted) {
-        // 通过回调通知任务完成
-        await this.onTaskCompleted(task.task_id, resultCid);
+        // 通过回调通知任务完成，同时传递关键帧时间戳
+        await this.onTaskCompleted(task.task_id, resultCid, keyframeTimestamps);
       }
 
       // 更新本地任务状态
-      this.updateTaskStatus(task, "Completed", resultCid);
+      this.updateTaskStatus(task, "Completed", resultCid, keyframeTimestamps);
 
       console.log(`任务 ${task.task_id} 处理成功，结果CID: ${resultCid}`);
 
       // 清理文件
       this.cleanupTaskFiles(task.task_id, inputFilePath, outputFilePath);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`处理任务 ${task.task_id} 时出错:`, error);
-      this.updateTaskStatus(task, "Failed", null, String(error));
+      this.updateTaskStatus(task, "Failed", null, null, String(error));
     }
   }
 
   // 添加回调函数属性
   private onTaskCompleted?: (
     taskId: string,
-    resultCid: string
+    resultCid: string,
+    keyframeTimestamps: string[]
   ) => Promise<boolean>;
 
-  // 添加设置回调的方法
+  // 修改设置回调的方法
   public setTaskCompletionCallback(
-    callback: (taskId: string, resultCid: string) => Promise<boolean>
+    callback: (
+      taskId: string,
+      resultCid: string,
+      keyframeTimestamps: string[]
+    ) => Promise<boolean>
   ): void {
     this.onTaskCompleted = callback;
   }
-
   /**
    * 锁定Worker状态
    */
@@ -219,6 +229,7 @@ export class Executor {
     task: TaskData,
     status: "Processing" | "Completed" | "Failed",
     resultCid?: string | null,
+    keyframeTimestamps?: string[] | null,
     error?: string
   ): void {
     // 从队列中移除任务
@@ -234,6 +245,7 @@ export class Executor {
       result_ipfs: resultCid || task.result_ipfs,
       error: error,
       completion_time: Date.now(),
+      keyframe_timestamps: keyframeTimestamps || task.keyframeTimestamps,
     };
 
     const taskPath = path.join(this.taskDir, `${task.task_id}.json`);

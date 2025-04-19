@@ -7,3 +7,5 @@ media/input/*
 media/output/*
 .DS_Store
 *.log
+*.mp4
+worker-data/

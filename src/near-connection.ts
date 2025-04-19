@@ -199,12 +199,21 @@ export class NearConnection {
 
   /**
    * 完成任务
+   * @param taskId 任务ID
+   * @param resultIpfs 结果文件IPFS哈希
+   * @param keyframeTimestamps 关键帧时间戳列表
+   * @returns 是否成功
    */
-  async completeTask(taskId: string, resultIpfs: string): Promise<boolean> {
+  async completeTask(
+    taskId: string,
+    resultIpfs: string,
+    keyframeTimestamps: string[]
+  ): Promise<boolean> {
     try {
       await this.contract.complete_task({
         task_id: taskId,
         result_ipfs: resultIpfs,
+        keyframe_timestamps: keyframeTimestamps,
       });
       console.log(`任务 ${taskId} 已标记为完成，结果: ${resultIpfs}`);
       return true;

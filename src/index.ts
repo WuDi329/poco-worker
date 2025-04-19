@@ -71,11 +71,18 @@ async function main() {
 
   // 添加这个回调，让Executor可以通过Listener来完成与区块链的交互
   // 这样可以避免Executor直接调用区块链
-  executor.setTaskCompletionCallback(async (taskId, resultCid) => {
-    console.log(`通过Listener更新任务 ${taskId} 完成状态`);
-    return await nearConnection.completeTask(taskId, resultCid);
-  });
-
+  executor.setTaskCompletionCallback(
+    async (taskId, resultCid, keyframeTimestamps) => {
+      console.log(
+        `通过Listener更新任务 ${taskId} 完成状态，关键帧时间戳: ${keyframeTimestamps.length}个`
+      );
+      return await nearConnection.completeTask(
+        taskId,
+        resultCid,
+        keyframeTimestamps
+      );
+    }
+  );
   // 启动服务
   console.log("启动所有服务...");
 

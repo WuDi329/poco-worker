@@ -48,6 +48,9 @@ export interface TaskData {
   qos_proof_id: string | null;
   publish_time: number;
   hw_acceleration_preferred: boolean;
+
+  keyframeTimestamps?: string[];
+  selectedGops?: string[];
 }
 
 export interface WorkerConfig {

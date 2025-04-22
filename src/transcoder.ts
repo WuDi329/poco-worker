@@ -159,16 +159,18 @@ export class Transcoder {
   }
 
   /**
-   * 获取视频信息
+   * 获取视频时长（以秒为单位）
+   * @param filePath 视频文件路径
+   * @returns 视频时长（秒）
    */
-  async getVideoInfo(filePath: string): Promise<any> {
+  async getVideoDuration(filePath: string): Promise<number> {
     return new Promise((resolve, reject) => {
       const args = [
         "-v",
         "error",
-        "-show_format",
-        "-show_streams",
-        "-print_format",
+        "-show_entries",
+        "format=duration",
+        "-of",
         "json",
         filePath,
       ];
@@ -185,7 +187,8 @@ export class Transcoder {
         if (code === 0) {
           try {
             const info = JSON.parse(output);
-            resolve(info);
+            const duration = parseFloat(info.format.duration);
+            resolve(duration);
           } catch (error) {
             if (error instanceof Error) {
               reject(new Error(`解析FFprobe输出失败: ${error.message}`));
@@ -194,12 +197,75 @@ export class Transcoder {
             }
           }
         } else {
-          reject(new Error(`获取视频信息失败，退出码: ${code}`));
+          reject(new Error(`获取视频时长失败，退出码: ${code}`));
         }
       });
 
       ffprobe.on("error", (err) => {
         reject(new Error(`启动FFprobe进程失败: ${err.message}`));
+      });
+    });
+  }
+
+  /**
+   * 使用 MediaInfo 获取视频的总帧数
+   * @param filePath 视频文件路径
+   * @returns 视频的总帧数
+   */
+  async getVideoFrameCount(filePath: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+      // 使用--Inform参数直接获取帧数
+      const args = ["--Inform=Video;%FrameCount%", filePath];
+
+      const mediainfo = spawn("mediainfo", args);
+
+      let output = "";
+      mediainfo.stdout.on("data", (data) => {
+        output += data.toString();
+      });
+
+      let errorOutput = "";
+      mediainfo.stderr.on("data", (data) => {
+        errorOutput += data.toString();
+      });
+
+      mediainfo.on("close", (code) => {
+        if (code === 0) {
+          try {
+            // 清理输出（去除空白字符）
+            const frameCountStr = output.trim();
+
+            // 检查是否有有效输出
+            if (frameCountStr && frameCountStr !== "") {
+              const frameCount = parseInt(frameCountStr);
+
+              if (!isNaN(frameCount)) {
+                resolve(frameCount);
+              } else {
+                reject(new Error(`无法解析帧数: "${frameCountStr}"`));
+              }
+            } else {
+              // 如果MediaInfo没有返回帧数，尝试使用替代方法
+              reject(new Error("MediaInfo未返回帧数信息，尝试使用替代方法"));
+            }
+          } catch (error) {
+            if (error instanceof Error) {
+              reject(new Error(`解析MediaInfo输出失败: ${error.message}`));
+            } else {
+              reject(new Error(`解析MediaInfo输出失败: ${String(error)}`));
+            }
+          }
+        } else {
+          reject(
+            new Error(
+              `MediaInfo执行失败，退出码: ${code}, 错误: ${errorOutput}`
+            )
+          );
+        }
+      });
+
+      mediainfo.on("error", (err) => {
+        reject(new Error(`启动MediaInfo进程失败: ${err.message}`));
       });
     });
   }

@@ -207,13 +207,17 @@ export class NearConnection {
   async completeTask(
     taskId: string,
     resultIpfs: string,
-    keyframeTimestamps: string[]
+    keyframeTimestamps: string[],
+    videoDuration: number,
+    frameCount: number
   ): Promise<boolean> {
     try {
       await this.contract.complete_task({
         task_id: taskId,
         result_ipfs: resultIpfs,
         keyframe_timestamps: keyframeTimestamps,
+        video_duration: videoDuration,
+        frame_count: frameCount,
       });
       console.log(`任务 ${taskId} 已标记为完成，结果: ${resultIpfs}`);
       return true;

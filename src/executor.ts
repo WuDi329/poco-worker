@@ -163,6 +163,14 @@ export class Executor {
         await this.transcoder.extractKeyframeTimestamps(outputFilePath);
       console.log("关键帧时间戳:", keyframeTimestamps);
 
+      const videoDuration = await this.transcoder.getVideoDuration(
+        outputFilePath
+      );
+
+      const frameCount = await this.transcoder.getVideoFrameCount(
+        outputFilePath
+      );
+
       // 上传结果到IPFS
       const resultCid = await this.ipfsService.uploadFile(outputFilePath);
 
@@ -172,7 +180,13 @@ export class Executor {
         // this.updateTaskStatus(task, "Completed", resultCid, keyframeTimestamps);
       } else if (this.onTaskCompleted) {
         // 通过回调通知任务完成，同时传递关键帧时间戳
-        await this.onTaskCompleted(task.task_id, resultCid, keyframeTimestamps);
+        await this.onTaskCompleted(
+          task.task_id,
+          resultCid,
+          keyframeTimestamps,
+          videoDuration,
+          frameCount
+        );
       }
 
       // 更新本地任务状态
@@ -192,7 +206,9 @@ export class Executor {
   private onTaskCompleted?: (
     taskId: string,
     resultCid: string,
-    keyframeTimestamps: string[]
+    keyframeTimestamps: string[],
+    videoDuration: number,
+    frameCount: number
   ) => Promise<boolean>;
 
   // 修改设置回调的方法
@@ -200,7 +216,9 @@ export class Executor {
     callback: (
       taskId: string,
       resultCid: string,
-      keyframeTimestamps: string[]
+      keyframeTimestamps: string[],
+      videoDuration: number,
+      frameCount: number
     ) => Promise<boolean>
   ): void {
     this.onTaskCompleted = callback;

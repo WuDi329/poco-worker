@@ -51,6 +51,8 @@ export interface TaskData {
 
   keyframeTimestamps?: string[];
   selectedGops?: string[];
+
+  frameCount?: number;
 }
 
 export interface WorkerConfig {

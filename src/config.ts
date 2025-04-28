@@ -9,11 +9,11 @@ const config: WorkerConfig = {
     helperUrl: "https://helper.testnet.near.org",
     explorerUrl: "https://explorer.testnet.near.org",
   },
-  contractId: "pococontract11.testnet", // 例如 media-transcoding.testnet
+  contractId: "pococontract13.testnet", // 例如 media-transcoding.testnet
   workerAccountId: "pocoworker1.testnet", // 例如 worker1.testnet
   credentialsPath: "~/.near-credentials", // NEAR凭证路径
   ipfsConfig: {
-    host: "127.0.0.1",
+    host: "10.24.197.106",
     port: 5001,
     protocol: "http",
   },
